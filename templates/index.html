@@ -5,10 +5,10 @@
 {% block head %}
     {{ super() }}
     <style>
-      body {
-          min-height: 75rem;
-          padding-top: 4.5rem;
-      }
+        body {
+            min-height: 75rem;
+            padding-top: 4.5rem;
+        }
     </style>
 {% endblock %}
 
@@ -16,33 +16,88 @@
     <h1 class="mt-4">Logs PL2</h1>
 
     {% if pixel_counts %}
-        <table class="table table-striped table-bordered mt-4">
+        <!-- Controles de filtro -->
+        <div class="row mt-4 mb-3">
+            <div class="col-md-3">
+                <label for="colorFilter" class="form-label">Filtrar por color:</label>
+                <select id="colorFilter" class="form-select">
+                    <option value="4">Rojo</option>
+                    <option value="5">Verde</option>
+                    <option value="6">Azul</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="minValue" class="form-label">Valor mínimo:</label>
+                <input type="number" id="minValue" class="form-control" placeholder="Ej. 100000">
+            </div>
+            <div class="col-md-3">
+                <label for="maxValue" class="form-label">Valor máximo:</label>
+                <input type="number" id="maxValue" class="form-control" placeholder="Ej. 300000">
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        <table id="logsTable" class="table table-striped table-bordered mt-4">
             <thead class="table-light">
                 <tr>
                     <th>ID</th>
                     <th>Usuario</th>
                     <th>Fecha y Hora</th>
                     <th>Nombre del Fichero</th>
-                    <th>Pixeles (RGB)</th>
+                    <th>Rojo</th>
+                    <th>Verde</th>
+                    <th>Azul</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-              {% for p in pixel_counts %}
+                {% for p in pixel_counts %}
                 <tr>
                     <td>{{ p.id }}</td>
                     <td>{{ p.usuario }}</td>
                     <td>{{ p.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                     <td>{{ p.fichero }}</td>
+                    <td>{{ p.pixeles['rojo'] }}</td>
+                    <td>{{ p.pixeles['verde'] }}</td>
+                    <td>{{ p.pixeles['azul'] }}</td>
                     <td>
-                        Rojo: {{ p.pixeles['rojo'] }},
-                        Verde: {{ p.pixeles['verde'] }},
-                        Azul: {{ p.pixeles['azul'] }}
+                        <form method="POST" action="{{ url_for('eliminar_pixel', id=p.id) }}" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este registro?');">
+                            <button type="submit" class="btn btn-sm btn-danger">Borrar</button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
-        </table>
+        </table>        
     {% else %}
         <p>No hay datos de PixelCount aún.</p>
     {% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        const table = $('#logsTable').DataTable({
+            order: [[2, 'desc']],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
+            }
+        });
+
+        $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+            const colIndex = parseInt($('#colorFilter').val()); // 4 = Rojo, 5 = Verde, 6 = Azul
+            const min = parseInt($('#minValue').val());
+            const max = parseInt($('#maxValue').val());
+            const value = parseInt(data[colIndex]) || 0;
+
+            if (!isNaN(min) && value < min) return false;
+            if (!isNaN(max) && value > max) return false;
+            return true;
+        });
+
+        $('#colorFilter, #minValue, #maxValue').on('input change', function () {
+            table.draw();
+        });
+    });
+</script>
 {% endblock %}

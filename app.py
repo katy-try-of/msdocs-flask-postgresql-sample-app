@@ -212,6 +212,14 @@ def add_pixel_count():
 
     return jsonify({"id": nuevo_pixel.id}), 201
 
+@app.route('/eliminar/<int:id>', methods=['POST'])
+@csrf.exempt
+def eliminar_pixel(id):
+    pixel = PixelCount.query.get_or_404(id)
+    db.session.delete(pixel)
+    db.session.commit()
+    return redirect(url_for('index'))
+
 @app.route('/pixelcounts', methods=['GET'])
 def list_pixel_counts():
     pixel_counts = PixelCount.query.all()
