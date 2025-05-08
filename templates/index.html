@@ -1,22 +1,28 @@
 {% extends "base.html" %}
+<!-- Esta plantilla extiende de base.html, que contiene la estructura principal (head, navbar, etc.) -->
 
 {% block title %}Registros{% endblock %}
+<!-- Define el título de la página, que se mostrará en la pestaña del navegador -->
 
 {% block head %}
     {{ super() }}
+    <!-- Llama a la cabecera original del base.html y añade estilos extra -->
     <style>
         body {
             min-height: 75rem;
-            padding-top: 4.5rem;
+            padding-top: 4.5rem; /* Da espacio para la barra de navegación fija */
         }
     </style>
 {% endblock %}
 
 {% block content %}
     <h1 class="mt-4">Logs PL2</h1>
+    <!-- Título principal de la página -->
 
     {% if pixel_counts %}
-        <!-- Controles de filtro -->
+        <!-- Si hay datos de píxeles, muestra filtros y tabla -->
+
+        <!-- Controles para filtrar por color y por rango de valores -->
         <div class="row mt-4 mb-3">
             <div class="col-md-3">
                 <label for="colorFilter" class="form-label">Filtrar por color:</label>
@@ -36,7 +42,7 @@
             </div>
         </div>
 
-        <!-- Tabla -->
+        <!-- Tabla de registros con DataTables -->
         <table id="logsTable" class="table table-striped table-bordered mt-4">
             <thead class="table-light">
                 <tr>
@@ -52,6 +58,7 @@
             </thead>
             <tbody>
                 {% for p in pixel_counts %}
+                <!-- Recorre cada entrada de pixel_counts (una por cada imagen analizada) -->
                 <tr>
                     <td>{{ p.id }}</td>
                     <td>{{ p.usuario }}</td>
@@ -61,6 +68,7 @@
                     <td>{{ p.pixeles['verde'] }}</td>
                     <td>{{ p.pixeles['azul'] }}</td>
                     <td>
+                        <!-- Botón para eliminar el registro (con confirmación en JS) -->
                         <form method="POST" action="{{ url_for('eliminar_pixel', id=p.id) }}" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este registro?');">
                             <button type="submit" class="btn btn-sm btn-danger">Borrar</button>
                         </form>
@@ -70,13 +78,16 @@
             </tbody>
         </table>        
     {% else %}
+        <!-- Si no hay datos, muestra un mensaje -->
         <p>No hay datos de PixelCount aún.</p>
     {% endif %}
 {% endblock %}
 
 {% block scripts %}
+<!-- Scripts adicionales específicos para esta página -->
 <script>
     $(document).ready(function () {
+        // Inicializa DataTable con orden descendente por fecha (columna 3)
         const table = $('#logsTable').DataTable({
             order: [[2, 'desc']],
             language: {
@@ -84,17 +95,20 @@
             }
         });
 
+        // Filtro personalizado de DataTables que se activa al cambiar los inputs
         $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
             const colIndex = parseInt($('#colorFilter').val()); // 4 = Rojo, 5 = Verde, 6 = Azul
             const min = parseInt($('#minValue').val());
             const max = parseInt($('#maxValue').val());
             const value = parseInt(data[colIndex]) || 0;
 
+            // Aplica el filtro según los valores mínimo y máximo introducidos
             if (!isNaN(min) && value < min) return false;
             if (!isNaN(max) && value > max) return false;
             return true;
         });
 
+        // Vuelve a dibujar la tabla cuando se cambian los filtros
         $('#colorFilter, #minValue, #maxValue').on('input change', function () {
             table.draw();
         });

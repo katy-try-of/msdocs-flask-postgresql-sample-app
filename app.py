@@ -96,28 +96,6 @@ def add_restaurant():
     db.session.commit()
     return redirect(url_for('details', id=restaurant.id))
 
-#@app.route('/add', methods=['POST'])
-#@csrf.exempt
-#def add_restaurant():
-#    try:
-#        name = request.values.get('restaurant_name')
-#        street_address = request.values.get('street_address')
-#        description = request.values.get('description')
-#    except (KeyError):
-#        # Redisplay the question voting form.
-#        return render_template('add_restaurant.html', {
-#            'error_message': "You must include a restaurant name, address, and description",
-#        })
-#    else:
-#        restaurant = Restaurant()
-#        restaurant.name = name
-#        restaurant.street_address = street_address
-#        restaurant.description = description
-#        db.session.add(restaurant)
-#        db.session.commit()
-#
-#        return redirect(url_for('details', id=restaurant.id))
-
 @app.route('/review/<int:id>', methods=['POST'])
 @csrf.exempt
 def add_review(id):
@@ -142,26 +120,6 @@ def add_review(id):
 
     return redirect(url_for('details', id=id))
 
-#from flask import Flask, request, jsonify
-#from models import db, PixelCount
-#
-#app = Flask(__name__)
-## … configuración de SQLAlchemy …
-#
-#@app.route("/add", methods=["POST"])
-#def add_pixel_count():
-#    data = request.get_json()
-#    # data = {"usuario": "...", "timestamp": "...", "fichero": "...", "pixeles": {"rojo":…,…}}
-#    pc = PixelCount(
-#        usuario   = data["usuario"],
-#        timestamp = datetime.fromisoformat(data["timestamp"]),
-#        fichero   = data["fichero"],
-#        pixeles   = data["pixeles"]
-#    )
-#    db.session.add(pc)
-#    db.session.commit()
-#    return jsonify({"id": pc.id}), 201
-#
 @app.context_processor
 def utility_processor():
     def star_rating(id):
@@ -184,6 +142,7 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+#Método post para recibir los datos de pixelcount
 @app.route("/add_pixel", methods=["POST"])
 @csrf.exempt
 def add_pixel_count():
@@ -192,15 +151,15 @@ def add_pixel_count():
 
     data = request.get_json()
 
-    try:
+    try: #Buscamos todos los campos necesarios
         usuario = data["usuario"]
         timestamp = datetime.fromisoformat(data["timestamp"])
         fichero = data["fichero"]
         pixeles = data["pixeles"]
-    except KeyError as e:
+    except KeyError as e: # Si falta alguno de los campos, devolvemos un error
         return jsonify({"error": f"Falta el campo {str(e)}"}), 400
 
-    nuevo_pixel = PixelCount(
+    nuevo_pixel = PixelCount(#Realizamos el insert en la base de datos
         usuario=usuario,
         timestamp=timestamp,
         fichero=fichero,
@@ -212,17 +171,19 @@ def add_pixel_count():
 
     return jsonify({"id": nuevo_pixel.id}), 201
 
+#Método para eliminar un pixelcount
 @app.route('/eliminar/<int:id>', methods=['POST'])
 @csrf.exempt
 def eliminar_pixel(id):
-    pixel = PixelCount.query.get_or_404(id)
-    db.session.delete(pixel)
+    pixel = PixelCount.query.get_or_404(id)#Buscamos el pixelcount por id
+    db.session.delete(pixel)#Eliminamos el pixelcount
     db.session.commit()
     return redirect(url_for('index'))
 
+#Método para listar todos los pixelcounts
 @app.route('/pixelcounts', methods=['GET'])
 def list_pixel_counts():
-    pixel_counts = PixelCount.query.all()
+    pixel_counts = PixelCount.query.all()#Obtenemos todos los pixelcounts
     return jsonify([{
         "id": p.id,
         "usuario": p.usuario,
@@ -231,5 +192,6 @@ def list_pixel_counts():
         "pixeles": p.pixeles
     } for p in pixel_counts])
 
+#Main method para ejecutar la app
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)

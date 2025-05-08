@@ -33,7 +33,7 @@ class Review(db.Model):
     def __str__(self):
         return f"{self.user_name}: {self.review_date:%x}"
 
-
+#Tabla añadida para almacenar los datos registrados a través de scala
 class PixelCount(db.Model):
     __tablename__ = "pixel_counts"
 

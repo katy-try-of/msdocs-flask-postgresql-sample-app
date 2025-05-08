@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     {% block head %}
+        <!-- Título de la página, con una sección anidada para permitir sobreescribir solo el título si se quiere -->
         <title>Azure Registros - {% block title %}{% endblock %}</title>
+
+        <!-- Carga de estilos CSS desde CDNs para Bootstrap 5, Font Awesome y DataTables -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
@@ -10,43 +13,36 @@
     {% endblock %}
 </head>
 <body>
+    <!-- Barra de navegación fija en la parte superior -->
     <nav class="navbar navbar-expand-md navbar-light fixed-top bg-light">
         <div class="container">
+          <!-- Logo de Azure con nombre del sitio -->
           <a class="navbar-brand" href="/">
             <img src="{{ url_for('static', filename='images/azure-icon.svg') }}" alt="" width="30" height="24" class="d-inline-block align-text-top">
             Azure Registros
           </a>
+
+          <!-- Botón de menú colapsable para móviles -->
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
-          <div class="collapse navbar-collapse" id="navbarCollapse">                
-            <ul class="navbar-nav mb-2 mb-md-0 ms-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="dropdown07XL" data-bs-toggle="dropdown" aria-expanded="false">Azure Docs</a>
-                    <ul class="dropdown-menu" aria-labelledby="dropdown07XL">
-                      <li><a class="dropdown-item" target="_blank" href="https://docs.microsoft.com/azure">Azure Docs Home</a></li>
-                      <li><a class="dropdown-item" target="_blank" href="#">Python Web App + Database Tutorial</a></li>
-                      <li><a class="dropdown-item" target="_blank" href="https://azure.microsoft.com/develop/python/">Python on Azure</a></li>
-                      <li><a class="dropdown-item" target="_blank" href="https://docs.microsoft.com/azure/developer/python">Python on Azure Developer Center</a></li>
-                  </ul>
-                </li>
-            </ul>
-          </div>
         </div>
     </nav>
 
+    <!-- Contenido principal de la página (con margen superior para no chocar con el navbar) -->
     <main class="container" style="margin-top: 80px;">    
         {% block content %}{% endblock %}
     </main>            
 
-    <!-- jQuery debe ir primero -->
+    <!-- jQuery necesario para Bootstrap y DataTables -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
-    <!-- Bootstrap y DataTables JS -->
+    <!-- Scripts JS de Bootstrap y DataTables -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 
+    <!-- Sección de scripts adicional que puede ser definida por cada plantilla -->
     {% block scripts %}{% endblock %}
 </body>
 </html>
